@@ -35,6 +35,7 @@ end
 function holylua.File_Add(dir,file)
 
     if string.StartsWith(file,"!") then return end  // skip
+    if string.find(dir,"vocab") then return end // FUCK
     if pr(file) == "cl_" then 
         if CLIENT then 
             include(dir..file)

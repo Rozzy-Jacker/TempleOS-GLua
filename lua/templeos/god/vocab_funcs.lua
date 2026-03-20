@@ -2,7 +2,7 @@
 holylua.default_vocab = "vocab"
 holylua.vocab_to_use = holylua.default_vocab or "vocab"
 function holylua.ReadVocab(name)
-    local path = "templeos/vocab/"..name..".json"
+    local path = "templeos/vocab/"..name..".lua"
     local content =  file.Read(path,"LUA")
     if !content then 
         holylua.print("Empty Vocab")
