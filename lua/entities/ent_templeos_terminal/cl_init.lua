@@ -67,9 +67,12 @@ function ENT:Draw( flags ) // https://wiki.facepunch.com/gmod/cam.Start3D2D
 	pos = pos + self:GetForward() * 11.7
 	pos = pos + self:GetRight() * 9.69
 	pos = pos + self:GetUp() * 11.8
-
+    //real memory
+    local memory = collectgarbage("count") * 1024
+    local memory_hexed = string.format("%08X",math.floor(memory))
 	local resolution = 6
     local fps = math.ceil(1/FrameTime())
+    if !self.cpu then self.cpu = 1 end
     if !self.blinktime then self.blinktime = CurTime() end 
 	cam.Start3D2D( pos, ang, 0.05 / resolution )
         if self:GetNWBool("Boot") then 
@@ -80,7 +83,7 @@ function ENT:Draw( flags ) // https://wiki.facepunch.com/gmod/cam.Start3D2D
         surface.SetDrawColor(holylua.color[2])
 		surface.DrawRect( 0, 0, 388 * resolution, 15 * resolution )
         //header text
-		draw.SimpleText( os.date("%a %m/%d %H:%M:%S ").."FPS:"..fps..  " Mem:002E3E9000 ".."CPU: 9", "TempleOS", 5, 20, holylua.color[16] )
+		draw.SimpleText( os.date("%a %m/%d %H:%M:%S ").."FPS:"..fps..  " Mem:"..memory_hexed.." CPU: "..self.cpu, "TempleOS", 5, 20, holylua.color[16] )
 		//draw.SimpleText( "123456789...", "TempleOS", 5, 100, holylua.color[2] ) //debug
         //Lines
         local y = 100
@@ -92,6 +95,7 @@ function ENT:Draw( flags ) // https://wiki.facepunch.com/gmod/cam.Start3D2D
         if self.blinktime < CurTime()  then 
             self.blinkstatus = !self.blinkstatus
             self.blinktime = CurTime() + .5
+            self.cpu = (#self.lines + fps) % 9 + 1 //updating cpu display
             
         end
         if self.blinkstatus then 
