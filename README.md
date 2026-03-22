@@ -8,8 +8,9 @@
 - Can play sounds
 - has custom vocab support (need to be expanded to normal use but maybe i do it later).
 ## convars
-convar holylua_enable_boot 0 for skip booting
-convar holylua_terminal_view 1 for direct camera placement infront of terminal
+- holylua_enable_boot (0-1) - booting sequence
+- holylua_realistic_boot (0-1) - realistic booting (0 - Long TempleOS logo and hymn, 1 - Real TempleOS booting that i recreated from old image that i found)
+- holylua_terminal_view (0-1) - focus camera on terminal
 # Commands
 ```
 SYSTEM COMMANDS:
