@@ -27,7 +27,6 @@ function ENT:DrawScreen()
         self.memory = collectgarbage("count") * 1024
     end
 	cam.Start3D2D( pos, ang, 0.05 / resolution )
-        if self:GetNWBool("Boot") then 
         //bg
 		surface.SetDrawColor(holylua.color[16])
 		surface.DrawRect( 0, 0, 388 * resolution, 320 * resolution )
@@ -100,10 +99,5 @@ function ENT:DrawScreen()
             surface.DrawRect(entry_x, usey, 44, 44)
         end
         //booting (TO DO make it more real)
-        else
-            surface.SetMaterial(Material("TempleOS.png"))
-            surface.SetDrawColor(holylua.color[16])
-            surface.DrawTexturedRect( 0, 0, 388 * resolution, 320 * resolution )
-        end
 	cam.End3D2D()
 end

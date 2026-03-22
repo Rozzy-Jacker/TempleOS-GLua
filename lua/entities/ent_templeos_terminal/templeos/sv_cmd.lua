@@ -59,12 +59,21 @@ function ENT:ApplyCommand(msg_raw)
         self:SetNWBool("On",false)
         self:SetNWBool("Boot", false)
         self:SetNWBool("On", true) 
+        if !GetConVar("holylua_realistic_boot"):GetBool() then 
         self:EmitSound("TempleOS_Hymn.mp3")
         timer.Simple(12, function() 
-           if IsValid(self) then 
+            if IsValid(self) then 
                 self:SetNWBool("Boot", true)
             end
         end)
+        else 
+            timer.Simple(1, function() 
+                if IsValid(self) then 
+                    self:SetNWBool("Boot", true)
+                end
+            end)
+        end
+
     elseif msg == "memrep" or msg == "date" or msg =="time" or msg =="cpurep" then 
         self:DoClientCommand(msg)
     elseif msg == "randi32" then 

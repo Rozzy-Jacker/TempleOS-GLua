@@ -1,6 +1,6 @@
 local ib, terminal = nil,nil 
 local camera_on = false 
-CreateClientConVar("holylua_terminal_view","0",true,false,"Enable direct view pos on terminal screen")
+CreateClientConVar("holylua_terminal_view","1",true,false,"Enable direct view pos on terminal screen")
 net.Receive("TempleOS_StartInput",function()
     local ply = LocalPlayer()
     local ent = net.ReadEntity()

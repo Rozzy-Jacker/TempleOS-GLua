@@ -2,11 +2,12 @@ AddCSLuaFile("shared.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("templeos/cl_net.lua")
 AddCSLuaFile("templeos/cl_screen.lua")
+AddCSLuaFile("templeos/cl_boot.lua")
 AddCSLuaFile("templeos/cl_text.lua")
 include("shared.lua")
 include("templeos/sv_cmd.lua")
 include("templeos/sv_net.lua")
-
+local realistic_boot = CreateConVar("holylua_realistic_boot", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 local bootconvar = CreateConVar("holylua_enable_boot", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
 
 function ENT:Initialize()
@@ -31,12 +32,20 @@ function ENT:Use(ply)
         self:SetNWBool("On", true)
         
         if bootconvar:GetBool() then 
+            if !realistic_boot:GetBool() then 
             self:EmitSound("TempleOS_Hymn.mp3")
             timer.Simple(12, function() 
                 if IsValid(self) then 
                     self:SetNWBool("Boot", true)
                 end
             end)
+            else 
+                timer.Simple(1, function() 
+                    if IsValid(self) then 
+                        self:SetNWBool("Boot", true)
+                    end
+                end)
+            end
         else 
             self:SetNWBool("Boot", true)
         end

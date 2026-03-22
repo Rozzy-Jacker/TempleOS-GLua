@@ -2,6 +2,7 @@
 include("shared.lua")
 include("templeos/cl_net.lua")
 include("templeos/cl_screen.lua")
+include("templeos/cl_boot.lua")
 include("templeos/cl_text.lua")
 function ENT:Initialize()
     self.lines = {}
@@ -14,5 +15,10 @@ end
 
 function ENT:Draw( flags ) 
 	self:DrawModel( flags )
-    self:DrawScreen()
+     if !self:GetNWBool("On") then return end 
+    if self:GetNWBool("Boot") then 
+        self:DrawScreen()
+    else
+        self:DrawBootScreen()
+    end
 end
