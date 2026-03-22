@@ -17,7 +17,7 @@ net.Receive("TempleOS_StartInput",function()
     ib.OnTextChanged = function(box)
         local msg_raw = box:GetValue()
         if !box:AllowedText(msg_raw) then 
-            local msg = text:gsub("[^a-zA-Z0-9 %p]", "")
+            local msg = msg_raw:gsub("[^a-zA-Z0-9 %p]", "")
             box:SetValue(msg)
             if IsValid(terminal) then terminal:SetNWString("PromptLine",msg) end
         else
