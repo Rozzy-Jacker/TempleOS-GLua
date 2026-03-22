@@ -1,6 +1,7 @@
-// vocab.json — i found it on TempleOS github [https://github.com/cia-foundation/TempleOS/tree/archive/Adam/God]
+// vocab.lua — i found it on TempleOS github [https://github.com/cia-foundation/TempleOS/tree/archive/Adam/God]
 holylua.default_vocab = "vocab"
 holylua.vocab_to_use = holylua.default_vocab or "vocab"
+holylua.bible_verses = ""
 function holylua.ReadVocab(name)
     local path = "templeos/vocab/"..name..".lua"
     local content =  file.Read(path,"LUA")
@@ -24,3 +25,42 @@ function holylua.SetNewVocab(name)
     holylua.vocab_to_use = name 
     holylua.UpdateVocab()
 end
+//bible code
+function holylua.LoadBible()
+    local content = file.Read("templeos/bible.lua","LUA")
+    if !content then 
+        holylua.print("Empty Holy Bible file. How despair")
+        return {}
+    end
+    local verses = {}
+    local current_verse = ""
+    local current_ref = ""
+    for line in string.gmatch(content, "[^\r\n]+") do 
+        line = string.Trim(line)
+        if line ~= "" then 
+            local book, chapter, verse = string.match(line, "^(%d+):(%d+)%s+(.*)$")
+            if book and chapter and verse then 
+                if current_ref ~= "" and current_verse ~= "" then 
+                    table.insert(verses, {ref = current_ref, text = string.Trim(current_verse)})
+                end
+                current_ref = book .. ":" .. chapter
+                current_verse = verse
+            else
+                if current_ref ~= "" then 
+                    if current_verse ~= "" then 
+                        current_verse = current_verse .. " " .. line
+                    else
+                        current_verse = line
+                    end
+                end
+            end
+        end
+    end
+    if current_ref ~= "" and current_verse ~= "" then 
+        table.insert(verses, {ref = current_ref, text = string.Trim(current_verse)})
+    end
+    holylua.print("Loaded " .. #verses .. " verses")
+
+    return verses
+end
+holylua.bible_verses = holylua.LoadBible()

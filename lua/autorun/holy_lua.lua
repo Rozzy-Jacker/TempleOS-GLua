@@ -1,7 +1,19 @@
 if !holylua then holylua = {} end 
 if SERVER then 
-    util.AddNetworkString("TempleOS_Interact")
+    local function TempleOS_AddNetworkString(string)
+        util.AddNetworkString("TempleOS_"..string)
+    end
+    TempleOS_AddNetworkString("Interact")
+    TempleOS_AddNetworkString("Command")
+    TempleOS_AddNetworkString("Print")
+    TempleOS_AddNetworkString("Input")
+    TempleOS_AddNetworkString("StartInput")
+    TempleOS_AddNetworkString("StopInput")
+    TempleOS_AddNetworkString("Clear")
 end
+if !TempleOS then TempleOS = {} end 
+TempleOS.Version = 5.03
+TempleOS.Prefix = {"/", "!", "-", "\\"}
 //color (CGA 16-color palette)
 
 local CGA_16Color = {  // https://en.wikipedia.org/wiki/Color_Graphics_Adapter#Color_palette
@@ -27,48 +39,36 @@ function holylua.print(a)
     if CLIENT then return end 
     MsgC(holylua.color[12],"[HolyLua] ", Color(255,255,255,255),a.."\n")
 end
-// simple loader that i made a long time ago (pasted and re-edited from gmodwiki) 
+// simple loader  (re-edited from gmodwiki) 
 //  https://wiki.facepunch.com/gmod/Global.AddCSLuaFile
-local function pr(string1)
-    return string.sub(string.lower(string1), 1, 3)
-end
-function holylua.File_Add(dir,file)
-
-    if string.StartsWith(file,"!") then return end  // skip
-    if string.find(dir,"vocab") then return end // FUCK
-    if pr(file) == "cl_" then 
-        if CLIENT then 
-            include(dir..file)
-        else
-            AddCSLuaFile(dir..file)
-        end
-        holylua.print(dir..file.. " Loaded client file")
-    elseif pr(file) == "sv_" then 
-        if SERVER then 
-            include(dir..file)
-        end
-        holylua.print(dir..file.. " Loaded server file")
-        
-    else // shared
-        if SERVER then 
-            AddCSLuaFile(dir..file)
-        end
-        include(dir..file)
-        holylua.print(dir..file.. " Loaded shared file")
-    end
-end
-
-function holylua.RecurseInclude(dir)
+holylua.Dir = holylua.Dir or {}
+function holylua.Dir:Include(dir) // edited loader from AddCSLuaFile() gmod wiki
     dir = dir .. "/"
-    local files,dirs = file.Find(dir .."*","LUA")
-    for _, v in ipairs(files) do 
-        if !string.EndsWith(v,".lua") then continue end
-        holylua.File_Add(dir,v) 
+    local files,folders = file.Find (dir.."*","LUA")
+    for i = 1, #files do 
+        local file = files[i]
+        if file:match("%.lua$") then 
+            local prefix = file:sub(1,3):lower()
+            local full_path = dir .. file 
+            if string.find(dir,"vocab") then continue end
+            if string.find(file,"bible") then continue end  
+            if prefix == "sv_" then 
+                if SERVER then include(full_path) end 
+            elseif prefix == "cl_" then 
+                if SERVER then 
+                    AddCSLuaFile(full_path)
+                else 
+                    include(full_path)
+                end
+            else 
+                if SERVER then AddCSLuaFile(full_path) end 
+                include(full_path)
+            end
+        end
     end
-    for _, v in ipairs(dirs) do 
-        holylua.RecurseInclude(dir .. v)
-        
+    for i=1 , #folders do 
+        self:Include(dir..folders[i])
     end
 end
 
-holylua.RecurseInclude("templeos")
+holylua.Dir:Include("templeos")
