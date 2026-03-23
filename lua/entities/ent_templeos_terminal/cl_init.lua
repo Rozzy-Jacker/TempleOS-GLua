@@ -4,6 +4,7 @@ include("templeos/cl_net.lua")
 include("templeos/cl_screen.lua")
 include("templeos/cl_boot.lua")
 include("templeos/cl_text.lua")
+include("templeos/sh_fm.lua")
 function ENT:Initialize()
     self.lines = {}
     self.blinkstatus = true
@@ -11,6 +12,7 @@ function ENT:Initialize()
     self:AddTextLine("Type 'Help' for commands ", holylua.color[1], false)
     self:AddEmptyLine()
     self:SetNWString("PromptLine","")
+    self:fm_init()
 end
 
 function ENT:Draw( flags ) 

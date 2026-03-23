@@ -1,4 +1,3 @@
-
 function ENT:DrawBootScreen()
     local ang = self:GetAngles()
 	ang:RotateAroundAxis( self:GetUp(), 90 )
@@ -20,7 +19,7 @@ function ENT:DrawBootScreen()
         y = y + 50
     end
 	cam.Start3D2D( pos, ang, 0.05 / resolution )
-        if GetConVar("holylua_realistic_boot"):GetBool() then 
+
             surface.SetDrawColor( holylua.color[1] )
             surface.DrawRect( 0, 0, 388 * resolution, 320 * resolution )
             simpleline("TempleOS V"..TempleOS.Version.."0 "..os.date("%m/%d/%y %H:%M:%S "))
@@ -28,26 +27,45 @@ function ENT:DrawBootScreen()
             simpleline("DskChg(':);")
             simpleline("")
             simpleline("Defined Drives:")
-            simpleline("B REDSEA    RAM     0000 0000 00")
-            simpleline_spaced("0000000000000058-0000000000020000")
-            simpleline("C FAT32     ATA     01F0 03F4 00")
-            simpleline_spaced("Model# :QEMU HARDDISK")
-            simpleline_spaced("Serial#:QM00001")
-            simpleline_spaced("000000000000003F-00000000040029D1")
-            simpleline("D FAT32     ATA     01F0 03F4 00")
-            simpleline_spaced("Model# :QEMU HARDDISK")
-            simpleline_spaced("Serial#:QM00001")
-            simpleline_spaced("00000000402A11F-0000000007FFD521")
-            simpleline("T ISO9660     ATAPI  0170 0374 00")
-            simpleline_spaced("0000000000000000-FFFFFFFFFFFFFFFF")
+            for let,dat in pairs(self.drives) do 
+                local line =  string.format("%s %-8s %-6s %-8s",let,string.sub(dat.name,1,8),dat.type,dat.readonly and "RO" or "RW")
+                if dat.size then 
+                    line = line .. string.format(" %04X %04X 00", 0, 0) 
+                end
+                simpleline(line)
+                if dat.type == "RAM" then 
+                    simpleline_spaced(string.format("%016X-%016X", 0, dat.size))
+                elseif dat.type == "ATA" then 
+                    simpleline_spaced("Model# :QEMU HARDDISK")
+                    if !dat.serial then dat.serial = math.random(10000, 99999) end // FUCK
+                    simpleline_spaced("Serial#:QM" .. string.format("%05d", dat.serial))
+                    local st = 0x000000000000003F
+                    local en = dat.size * 512 
+                    simpleline_spaced(string.format("%016X-%016X", st, en))
+                elseif dat.type == "ATAPI" then 
+                    simpleline_spaced(string.format("%016X-%016X", 0, dat.size or 0xFFFFFFFFFFFFFFFF))
+                end
+            end
             simpleline("Home Dir: \"C:/HOME\"")
             simpleline("MultiCore Start")
             simpleline("")
-            simpleline("Loading Compiler")
-        else
-            surface.SetMaterial(Material("TempleOS.png"))
-            surface.SetDrawColor(holylua.color[16])
-            surface.DrawTexturedRect( 0, 0, 388 * resolution, 320 * resolution )
-        end
+            if !self:GetNWBool("Killed") then
+                simpleline("Loading Compiler")
+            else
+                simpleline("Can't load Compiler")
+                simpleline("KERNEL PANIC: /Adam directory damaged")
+                simpleline("at kernel+0x7C84: fs_check_integrity+0x3A2")
+                simpleline("at kernel+0x8F12: fs_validate_files+0x4F")
+                simpleline("at boot+0x1A45: system_init+0xC8")
+                simpleline("")
+                simpleline("Code: 0f 0b 1b 03 50 d2 2b")
+                simpleline("Kernel panic: Fatal exception")
+
+            end
+       
+            --surface.SetMaterial(Material("TempleOS.png"))
+            --surface.SetDrawColor(holylua.color[16])
+            --surface.DrawTexturedRect( 0, 0, 388 * resolution, 320 * resolution )
+        
 	cam.End3D2D()
 end

@@ -1,5 +1,9 @@
+// i hate comeback here
 function ENT:DrawScreen()
-    if !self:GetNWBool("On") then return end 
+    if !self:GetNWBool("On") then return end
+    local show_tree = self.show_tree or false
+    local tree_path = self.tree_path or "" 
+
 	local ang = self:GetAngles()
 	ang:RotateAroundAxis( self:GetUp(), 90 )
 	ang:RotateAroundAxis( self:GetRight(), -90 + 4.5 )
@@ -38,66 +42,53 @@ function ENT:DrawScreen()
 		//draw.SimpleText( "123456789...", "TempleOS", 5, 100, holylua.color[2] ) //debug
         //Lines
         local y = 100
-        //text setup and > formating
+        //text setup finally simplified 
         for i, line in ipairs(self.lines) do 
             local display_text = line.msg or ""
-            local x_offset = 5
             
             if line.user_input and display_text ~= "" then
-                if display_text:sub(1, 2) ~= "> " then
+                if not string.find(display_text, "^>") then
                     display_text = "> " .. display_text
                 end
             end
-            local space = 0
-            for j = 1, #display_text do
-                if display_text:sub(j, j) == " " then
-                    space = space + 1
-                else
-                    break
-                end
-            end
-            if space > 0 then
-                local space_width = surface.GetTextSize(" ")
-                x_offset = x_offset + (space * space_width)
-                display_text = display_text:sub(space + 1)
-            end
             
-         	draw.SimpleText(display_text, "TempleOS", x_offset, y, self.lines[i].col or holylua.color[2] )
+            draw.SimpleText(display_text, "TempleOS", 5, y, line.col or holylua.color[2])
             y = y + 50 
         end
 
-        local usey = y
+        local usey = y 
         if self.blinktime < CurTime()  then 
             self.blinkstatus = !self.blinkstatus
             self.blinktime = CurTime() + .5
             self.cpu = (#self.lines + fps) % 9 + 1 //pseudocpu
             
         end
-        local prompt = self:GetNWString("PromptLine") or ""
-        local msg_prompt = "> " .. prompt
+        local cprompt = self:GetNWString("CurrentPrompt") or "C:\\>"
+        local userinput = self:GetNWString("PromptLine") or ""
+        
+        local fprompt= cprompt .. " " .. userinput
         local max_width = 388 * resolution - 50
-        //much better prompt line
-        if surface.GetTextSize(msg_prompt) > max_width then
+        if surface.GetTextSize(fprompt) > max_width then
             local available = max_width - surface.GetTextSize("...")
             local truncated = ""
-            for i = 1, #msg_prompt do
-                local test = truncated .. msg_prompt:sub(i, i)
+            for i = 1, #fprompt do
+                local test = truncated .. fprompt:sub(i, i)
                 if surface.GetTextSize(test) <= available then
                     truncated = test
                 else
                     break
                 end
             end
-            msg_prompt = truncated .. "..."
+            fprompt = truncated .. "..."
         end
-        
-        local prompt_xt = 5
-        draw.SimpleText(msg_prompt, "TempleOS", prompt_xt, usey, holylua.color[2])
+        draw.SimpleText(fprompt, "TempleOS", 5, usey, holylua.color[2])
         
         if self.blinkstatus then
-            local entry_x = math.min(5 + surface.GetTextSize("> " .. prompt), 388 * resolution - 50)
-            surface.DrawRect(entry_x, usey, 44, 44)
+            surface.SetFont("TempleOS")
+            surface.SetDrawColor(holylua.color[2])
+            surface.DrawRect( 5, usey + 60, 44, 44)
         end
+	
         //booting (TO DO make it more real)
 	cam.End3D2D()
 end

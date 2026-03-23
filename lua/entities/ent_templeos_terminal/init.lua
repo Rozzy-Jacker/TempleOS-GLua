@@ -4,11 +4,11 @@ AddCSLuaFile("templeos/cl_net.lua")
 AddCSLuaFile("templeos/cl_screen.lua")
 AddCSLuaFile("templeos/cl_boot.lua")
 AddCSLuaFile("templeos/cl_text.lua")
+AddCSLuaFile("templeos/sh_fm.lua")
 include("shared.lua")
 include("templeos/sv_cmd.lua")
 include("templeos/sv_net.lua")
-local realistic_boot = CreateConVar("holylua_realistic_boot", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
-local bootconvar = CreateConVar("holylua_enable_boot", 1, {FCVAR_ARCHIVE, FCVAR_REPLICATED})
+include("templeos/sh_fm.lua")
 
 function ENT:Initialize()
     self:SetModel("models/props_lab/monitor01a.mdl")
@@ -23,6 +23,11 @@ function ENT:Initialize()
     if IsValid(physObj) then
         physObj:Wake()
     end
+    self:fm_init()
+    local fuckn = self:GetNWString("CurrentPrompt")
+    if fuckn == "" or fuckn == nil then
+        self:SetNWString("CurrentPrompt", "C:\\>")
+    end
 end
 
 function ENT:Use(ply)
@@ -30,27 +35,16 @@ function ENT:Use(ply)
     
     if !self:GetNWBool("On") then 
         self:SetNWBool("On", true)
-        
-        if bootconvar:GetBool() then 
-            if !realistic_boot:GetBool() then 
-            self:EmitSound("TempleOS_Hymn.mp3")
-            timer.Simple(12, function() 
+        self:SyncPrompt()
+        if !self.Killed then  
+            timer.Simple(math.random(0.5,1.5), function() 
                 if IsValid(self) then 
                     self:SetNWBool("Boot", true)
+                    self:EmitSound("ibm_beep.mp3")
                 end
             end)
-            else 
-                timer.Simple(1, function() 
-                    if IsValid(self) then 
-                        self:SetNWBool("Boot", true)
-                    end
-                end)
-            end
-        else 
-            self:SetNWBool("Boot", true)
         end
-    else
-        if !self:GetNWBool("Boot") then return end 
+    elseif self:GetNWBool("On") and self:GetNWBool("Boot") then
         TempleOS.Input(ply, self, true)
     end
 end

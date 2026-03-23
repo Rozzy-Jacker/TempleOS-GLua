@@ -10,6 +10,8 @@ if SERVER then
     TempleOS_AddNetworkString("StartInput")
     TempleOS_AddNetworkString("StopInput")
     TempleOS_AddNetworkString("Clear")
+    TempleOS_AddNetworkString("SyncPrompt")
+    TempleOS_AddNetworkString("SyncEdit")
 end
 if !TempleOS then TempleOS = {} end 
 TempleOS.Version = 5.03
